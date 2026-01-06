@@ -48,25 +48,27 @@
   self.statusItem.button.title = @"🎬";
 
   NSMenu *menu = [[NSMenu alloc] init];
-  [menu addItemWithTitle:@"Trocar Vídeo"
+  [menu addItemWithTitle:NSLocalizedString(@"Change Video",
+                                           @"Menu item to change video")
                   action:@selector(changeVideo:)
            keyEquivalent:@"n"];
 
   // Item para Mutar
-  NSMenuItem *muteItem =
-      [[NSMenuItem alloc] initWithTitle:@"Mudo"
-                                 action:@selector(toggleMute:)
-                          keyEquivalent:@"m"];
+  NSMenuItem *muteItem = [[NSMenuItem alloc]
+      initWithTitle:NSLocalizedString(@"Mute", @"Menu item to mute video")
+             action:@selector(toggleMute:)
+      keyEquivalent:@"m"];
   muteItem.state = [[NSUserDefaults standardUserDefaults] boolForKey:@"IsMuted"]
                        ? NSControlStateValueOn
                        : NSControlStateValueOff;
   [menu addItem:muteItem];
 
   // Item para Iniciar no Login (usa preferência salva como fonte da verdade)
-  NSMenuItem *loginItem =
-      [[NSMenuItem alloc] initWithTitle:@"Iniciar no Login"
-                                 action:@selector(toggleLoginItem:)
-                          keyEquivalent:@""];
+  NSMenuItem *loginItem = [[NSMenuItem alloc]
+      initWithTitle:NSLocalizedString(@"Start at Login",
+                                      @"Menu item to toggle start at login")
+             action:@selector(toggleLoginItem:)
+      keyEquivalent:@""];
   BOOL shouldStartAtLogin =
       [[NSUserDefaults standardUserDefaults] boolForKey:@"StartAtLogin"];
   loginItem.state =
@@ -74,7 +76,7 @@
   [menu addItem:loginItem];
 
   [menu addItem:[NSMenuItem separatorItem]];
-  [menu addItemWithTitle:@"Sair"
+  [menu addItemWithTitle:NSLocalizedString(@"Quit", @"Menu item to quit app")
                   action:@selector(terminateApp:)
            keyEquivalent:@"q"];
   self.statusItem.menu = menu;
@@ -83,7 +85,8 @@
 - (void)changeVideo:(id)sender {
   [NSApp activateIgnoringOtherApps:YES];
   NSOpenPanel *panel = [NSOpenPanel openPanel];
-  [panel setTitle:@"Selecione um vídeo"];
+  [panel setTitle:NSLocalizedString(@"Select a video",
+                                    @"Title for the open panel")];
   [panel setAllowedFileTypes:@[ @"mp4", @"mov", @"m4v" ]];
 
   if ([panel runModal] == NSModalResponseOK) {
