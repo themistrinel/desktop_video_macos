@@ -4,14 +4,22 @@
 <dict>
     <key>CFBundleIdentifier</key>
     <string>com.user.MyDesktopVideo</string>
+
     <key>CFBundleExecutable</key>
     <string>MyDesktopVideo</string>
+
     <key>CFBundleName</key>
     <string>MyDesktopVideo</string>
+
+    <key>CFBundleIconFile</key>
+    <string>MyDesktopVideo</string>
+
     <key>CFBundlePackageType</key>
     <string>APPL</string>
+
     <key>LSMinimumSystemVersion</key>
     <string>10.13</string>
+
     <key>LSUIElement</key>
     <true/>
 </dict>

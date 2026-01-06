@@ -10,6 +10,12 @@ Um aplicativo macOS leve que transforma qualquer vídeo em um papel de parede an
 - **Mudo/Som**: Opção para silenciar o vídeo com persistência de estado.
 - **Auto-start**: Opção no menu para iniciar automaticamente ao fazer login no macOS.
 - **Barra de Menus**: Controle total via ícone 🎬 na barra de menus, sem ícone no Dock.
+- **Performance Otimizada**: Reuso de player, buffer curto e pausa automática para economizar CPU/GPU.
+
+## Demonstração
+
+![Exemplo de Uso](path/to/your/demo_video_or_gif.gif)
+> *vídeo de demonstração.*
 
 ## Requisitos
 
@@ -21,7 +27,7 @@ Um aplicativo macOS leve que transforma qualquer vídeo em um papel de parede an
 Para compilar o projeto e gerar o executável dentro do bundle `.app`, execute o seguinte comando no terminal:
 
 ```bash
-clang++ -O3 -framework Cocoa -framework AVFoundation -framework AVKit -framework ServiceManagement -o MyDesktopVideo.app/Contents/MacOS/MyDesktopVideo main.mm && codesign -s - MyDesktopVideo.app
+clang++ -O3 -framework Cocoa -framework AVFoundation -framework AVKit -framework ServiceManagement -framework QuartzCore -o MyDesktopVideo.app/Contents/MacOS/MyDesktopVideo main.mm && codesign -s - MyDesktopVideo.app
 ```
 
 ## Como Rodar

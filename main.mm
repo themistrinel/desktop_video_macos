@@ -14,6 +14,8 @@
 @property(strong) AVPlayerLooper *playerLooper;
 @property(strong) NSMutableArray<AVPlayerLayer *> *playerLayers;
 @property(strong) NSStatusItem *statusItem;
+@property(assign)
+    BOOL isVisible; // Rastreia visibilidade para pausa inteligente
 @end
 
 @implementation AppDelegate
@@ -105,46 +107,165 @@
 }
 
 - (void)setupWindowsAndPlayer:(NSURL *)videoURL {
-  // Limpa janelas e camadas antigas
-  for (NSWindow *win in self.windows)
-    [win close];
-  [self.windows removeAllObjects];
-  [self.playerLayers removeAllObjects];
+  // Desativa animações implícitas para as mudanças a seguir
+  [CATransaction begin];
+  [CATransaction setDisableActions:YES];
 
-  AVPlayerItem *playerItem =
-      [AVPlayerItem playerItemWithAsset:[AVAsset assetWithURL:videoURL]];
-  self.player = [AVQueuePlayer queuePlayerWithItems:@[ playerItem ]];
+  // Configura o item de vídeo com buffer reduzido (Requisito 3)
+  AVAsset *asset = [AVAsset assetWithURL:videoURL];
+  AVPlayerItem *playerItem = [AVPlayerItem playerItemWithAsset:asset];
+  playerItem.preferredForwardBufferDuration = 1.0; // Buffer de 1 segundo
+  playerItem.canUseNetworkResourcesForLiveStreamingWhilePaused = NO;
+
+  // Cria o player apenas se não existir (Requisito 1)
+  if (!self.player) {
+    self.player = [AVQueuePlayer queuePlayerWithItems:@[ playerItem ]];
+    self.player.automaticallyWaitsToMinimizeStalling =
+        NO; // Otimização de latência
+  } else {
+    [self.player removeAllItems];
+    [self.player insertItem:playerItem afterItem:nil];
+  }
+
+  // Reinicia o looper para o novo item
   self.playerLooper = [AVPlayerLooper playerLooperWithPlayer:self.player
                                                 templateItem:playerItem];
+
+  // Reaproveita janelas se possível; se a contagem de monitores mudou, limpa
+  // tudo.
+  if (self.windows.count != [NSScreen screens].count) {
+    for (NSWindow *win in self.windows)
+      [win close];
+    [self.windows removeAllObjects];
+    [self.playerLayers removeAllObjects];
+
+    for (NSScreen *screen in [NSScreen screens]) {
+      NSWindow *window =
+          [[NSWindow alloc] initWithContentRect:screen.frame
+                                      styleMask:NSWindowStyleMaskBorderless
+                                        backing:NSBackingStoreBuffered
+                                          defer:NO];
+      [window setBackgroundColor:[NSColor blackColor]];
+      [window setLevel:kCGDesktopWindowLevel]; // Wallpaper level
+      [window setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces |
+                                    NSWindowCollectionBehaviorStationary];
+      [window setIgnoresMouseEvents:YES];
+
+      // Otimização: Desativa animações da janela
+      [window setAnimationBehavior:NSWindowAnimationBehaviorNone];
+
+      [[window contentView] setWantsLayer:YES];
+      AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+
+      // Desativa animações implícitas na camada (Requisito 4)
+      layer.actions = @{
+        @"position" : [NSNull null],
+        @"bounds" : [NSNull null],
+        @"contents" : [NSNull null],
+        @"sublayers" : [NSNull null]
+      };
+
+      [layer setFrame:[[window contentView] bounds]];
+      [layer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+      [[[window contentView] layer] addSublayer:layer];
+
+      [window makeKeyAndOrderFront:nil];
+      [self.windows addObject:window];
+      [self.playerLayers addObject:layer];
+
+      // Observa visibilidade da janela (Requisito: Pausa apenas em tela cheia)
+      [[NSNotificationCenter defaultCenter]
+          addObserver:self
+             selector:@selector(checkVisibility)
+                 name:NSWindowDidChangeOcclusionStateNotification
+               object:window];
+    }
+
+    // Observa troca de Spaces para garantir que não pausamos indevidamente (Log
+    // e controle)
+    [[[NSWorkspace sharedWorkspace] notificationCenter]
+        addObserver:self
+           selector:@selector(handleSpaceChange)
+               name:NSWorkspaceActiveSpaceDidChangeNotification
+             object:nil];
+
+    // Observa ativação de apps para debug (Requisito 3)
+    [[[NSWorkspace sharedWorkspace] notificationCenter]
+        addObserver:self
+           selector:@selector(handleAppActivation:)
+               name:NSWorkspaceDidActivateApplicationNotification
+             object:nil];
+  } else {
+    // Apenas atualiza o player no layer existente
+    for (AVPlayerLayer *layer in self.playerLayers) {
+      layer.player = self.player;
+    }
+  }
 
   // Aplica estado de mudo persistido
   self.player.muted =
       [[NSUserDefaults standardUserDefaults] boolForKey:@"IsMuted"];
 
-  // Cria uma janela para cada monitor
-  for (NSScreen *screen in [NSScreen screens]) {
-    NSWindow *window =
-        [[NSWindow alloc] initWithContentRect:screen.frame
-                                    styleMask:NSWindowStyleMaskBorderless
-                                      backing:NSBackingStoreBuffered
-                                        defer:NO];
-    [window setBackgroundColor:[NSColor blackColor]];
-    [window setLevel:kCGDesktopWindowLevel];
-    [window setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces |
-                                  NSWindowCollectionBehaviorStationary];
-    [window setIgnoresMouseEvents:YES];
-    [[window contentView] setWantsLayer:YES];
-
-    AVPlayerLayer *layer = [AVPlayerLayer playerLayerWithPlayer:self.player];
-    [layer setFrame:[[window contentView] bounds]];
-    [layer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
-    [[[window contentView] layer] addSublayer:layer];
-
-    [window makeKeyAndOrderFront:nil];
-    [self.windows addObject:window];
-    [self.playerLayers addObject:layer];
-  }
+  self.isVisible = YES;
   [self.player play];
+  NSLog(@"[DesktopVideo DevLog] Reprodução iniciada/atualizada: %@",
+        videoURL.lastPathComponent);
+
+  [CATransaction commit];
+}
+
+// Log quando troca de Space (Requisito 1: Não pausar aqui)
+- (void)handleSpaceChange {
+  NSLog(@"[DesktopVideo DevLog] Espaço alterado (Space Change). Mantendo "
+        @"reprodução.");
+  // Garante que continue dando play se estivermos trocando de espaço
+  if (!self.isVisible) {
+    [self.player play];
+    self.isVisible = YES;
+  }
+}
+
+// Log quando um app é ativado (ajuda a identificar transições de tela cheia)
+- (void)handleAppActivation:(NSNotification *)notification {
+  NSRunningApplication *app = notification.userInfo[NSWorkspaceApplicationKey];
+  NSLog(@"[DesktopVideo DevLog] App ativado: %@", app.localizedName);
+}
+
+// Otimização: Pausa o vídeo apenas quando o desktop está totalmente oculto
+// (Requisito 2 e 5)
+- (void)checkVisibility {
+  BOOL anyVisible = NO;
+  for (NSWindow *win in self.windows) {
+    if (win.occlusionState & NSWindowOcclusionStateVisible) {
+      anyVisible = YES;
+      break;
+    }
+  }
+
+  if (anyVisible && !self.isVisible) {
+    [self.player play];
+    self.isVisible = YES;
+    NSLog(@"[DesktopVideo DevLog] Vídeo retomado: Desktop visível.");
+  } else if (!anyVisible && self.isVisible) {
+    // Verifica se não é apenas uma transição rápida
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          BOOL stillHidden = YES;
+          for (NSWindow *win in self.windows) {
+            if (win.occlusionState & NSWindowOcclusionStateVisible) {
+              stillHidden = NO;
+              break;
+            }
+          }
+          if (stillHidden && self.isVisible) {
+            [self.player pause];
+            self.isVisible = NO;
+            NSLog(@"[DesktopVideo DevLog] Vídeo pausado: Desktop oculto "
+                  @"(possível App em Tela Cheia).");
+          }
+        });
+  }
 }
 
 - (void)syncLoginItemWithPreference {
