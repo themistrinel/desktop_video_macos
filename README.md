@@ -48,6 +48,19 @@ Um aplicativo macOS leve que transforma qualquer vídeo em um papel de parede an
 
 ### 🛠 Como Compilar
 
+#### Compilação com CMake (Recomendado)
+
+```bash
+# Configurar e compilar
+cmake -B build
+cmake --build build
+
+# Rodar
+open MyDesktopVideo.app
+```
+
+#### Compilação Manual (Clang++)
+
 ```bash
 clang++ -O3 \
   -framework Cocoa \
@@ -60,6 +73,7 @@ clang++ -O3 \
   main.mm && codesign -s - MyDesktopVideo.app
 ```
 
+<<<<<<< HEAD
 #### Compilação com CMake (Recomendado)
 
 ```bash
@@ -81,9 +95,15 @@ find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|mm\|m\)' -exec clang-format -i {} +
 ```
 
 ### ▶ Como Rodar
+=======
+### 💎 Formatação de Código
+
+O projeto utiliza `clang-format` (estilo Allman) para manter a consistência.
+>>>>>>> 0a4aa0d (feat: Add CMake build system, update README with build and formatting instructions, and refine Info.plist for the macOS application.)
 
 ```bash
-open MyDesktopVideo.app
+# Formatar todo o projeto
+find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|mm\|m\)' -exec clang-format -i {} +
 ```
 
 ---
@@ -125,6 +145,19 @@ A lightweight macOS application that turns any video into an animated desktop wa
 
 ### 🛠 How to Build
 
+#### Build with CMake (Recommended)
+
+```bash
+# Configure and build
+cmake -B build
+cmake --build build
+
+# Run
+open MyDesktopVideo.app
+```
+
+#### Manual Build (Clang++)
+
 ```bash
 clang++ -O3 \
   -framework Cocoa \
@@ -136,6 +169,7 @@ clang++ -O3 \
   main.mm && codesign -s - MyDesktopVideo.app
 ```
 
+<<<<<<< HEAD
 #### Build with CMake (Recommended)
 
 ```bash
@@ -157,9 +191,15 @@ find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|mm\|m\)' -exec clang-format -i {} +
 ```
 
 ### ▶ How to Run
+=======
+### 💎 Code Formatting
+
+The project uses `clang-format` (Allman style) to maintain consistency.
+>>>>>>> 0a4aa0d (feat: Add CMake build system, update README with build and formatting instructions, and refine Info.plist for the macOS application.)
 
 ```bash
-open MyDesktopVideo.app
+# Format the entire project
+find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|mm\|m\)' -exec clang-format -i {} +
 ```
 
 ---
