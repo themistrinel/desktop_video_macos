@@ -59,6 +59,15 @@ clang++ -O3 \
   main.mm && codesign -s - MyDesktopVideo.app
 ```
 
+### 💎 Formatação de Código
+
+O projeto utiliza `clang-format` (estilo Allman) para manter a consistência.
+
+```bash
+# Formatar todo o projeto
+find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|mm\|m\)' -exec clang-format -i {} +
+```
+
 ### ▶ Como Rodar
 
 ```bash
@@ -113,6 +122,15 @@ clang++ -O3 \
   -framework QuartzCore \
   -o MyDesktopVideo.app/Contents/MacOS/MyDesktopVideo \
   main.mm && codesign -s - MyDesktopVideo.app
+```
+
+### 💎 Code Formatting
+
+The project uses `clang-format` (Allman style) to maintain consistency.
+
+```bash
+# Format the entire project
+find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|mm\|m\)' -exec clang-format -i {} +
 ```
 
 ### ▶ How to Run
