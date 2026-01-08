@@ -46,64 +46,26 @@ Um aplicativo macOS leve que transforma qualquer vídeo em um papel de parede an
 * macOS 13.0 ou superior (`SMAppService`)
 * `clang++` (Xcode Command Line Tools)
 
-### 🛠 Como Compilar
-
-#### Compilação com CMake (Recomendado)
+### 🛠 Como Compilar (CMake)
 
 ```bash
-# Configurar e compilar
+# 1. Configurar o projeto
 cmake -B build
+
+# 2. Compilar
 cmake --build build
 
-# Rodar
-open MyDesktopVideo.app
-```
-
-#### Compilação Manual (Clang++)
-
-```bash
-clang++ -O3 \
-  -framework Cocoa \
-  -framework AVFoundation \
-  -framework AVKit \
-  -framework ServiceManagement \
-  -framework QuartzCore \
-  -framework UniformTypeIdentifiers \
-  -o MyDesktopVideo.app/Contents/MacOS/MyDesktopVideo \
-  main.mm && codesign -s - MyDesktopVideo.app
-```
-
-<<<<<<< HEAD
-#### Compilação com CMake (Recomendado)
-
-```bash
-# Configurar e compilar
-cmake -B build
-cmake --build build
-
-# Rodar (a partir da pasta build)
+# 3. Rodar o aplicativo
 open build/MyDesktopVideo.app
 ```
 
 ### 💎 Formatação de Código
 
-O projeto utiliza `clang-format` (estilo Allman) para manter a consistência.
+O projeto utiliza `clang-format` (estilo Allman) e as configurações estão no arquivo `.clang-format`. No VS Code, o "Format on Save" está habilitado.
 
 ```bash
-# Formatar todo o projeto
-find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|mm\|m\)' -exec clang-format -i {} +
-```
-
-### ▶ Como Rodar
-=======
-### 💎 Formatação de Código
-
-O projeto utiliza `clang-format` (estilo Allman) para manter a consistência.
->>>>>>> 0a4aa0d (feat: Add CMake build system, update README with build and formatting instructions, and refine Info.plist for the macOS application.)
-
-```bash
-# Formatar todo o projeto
-find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|mm\|m\)' -exec clang-format -i {} +
+# Formatar manualmente via terminal
+clang-format -i src/main.mm
 ```
 
 ---
@@ -142,73 +104,40 @@ A lightweight macOS application that turns any video into an animated desktop wa
 
 * macOS 13.0 or newer (`SMAppService` support)
 * `clang++` (Xcode Command Line Tools)
+* `cmake`
 
-### 🛠 How to Build
-
-#### Build with CMake (Recommended)
+### 🛠 How to Build (CMake)
 
 ```bash
-# Configure and build
+# 1. Configure the project
 cmake -B build
+
+# 2. Build
 cmake --build build
 
-# Run
-open MyDesktopVideo.app
-```
-
-#### Manual Build (Clang++)
-
-```bash
-clang++ -O3 \
-  -framework Cocoa \
-  -framework AVFoundation \
-  -framework ServiceManagement \
-  -framework QuartzCore \
-  -framework UniformTypeIdentifiers \
-  -o MyDesktopVideo.app/Contents/MacOS/MyDesktopVideo \
-  main.mm && codesign -s - MyDesktopVideo.app
-```
-
-<<<<<<< HEAD
-#### Build with CMake (Recommended)
-
-```bash
-# Configure and build
-cmake -B build
-cmake --build build
-
-# Run (from build folder)
+# 3. Run the application
 open build/MyDesktopVideo.app
 ```
 
 ### 💎 Code Formatting
 
-The project uses `clang-format` (Allman style) to maintain consistency.
+The project uses `clang-format` (Allman style) via the `.clang-format` file. VS Code is configured for **Format on Save**.
 
 ```bash
-# Format the entire project
-find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|mm\|m\)' -exec clang-format -i {} +
-```
-
-### ▶ How to Run
-=======
-### 💎 Code Formatting
-
-The project uses `clang-format` (Allman style) to maintain consistency.
->>>>>>> 0a4aa0d (feat: Add CMake build system, update README with build and formatting instructions, and refine Info.plist for the macOS application.)
-
-```bash
-# Format the entire project
-find . -regex '.*\.\(cpp\|hpp\|cc\|cxx\|h\|mm\|m\)' -exec clang-format -i {} +
+# Format manually via terminal
+clang-format -i src/main.mm
 ```
 
 ---
 
 ## 📁 Project Structure
 
-* `main.mm` — Objective-C++ source code
-* `MyDesktopVideo.app/` — macOS application bundle
+* `src/` — Objective-C++ source code (`main.mm`)
+* `assets/` — Icons and static resources
+* `build/` — Compiled application bundle (Git ignored)
+* `.vscode/` — VS Code formatting settings
 * `README.md` — Project documentation
+
 
 ---
 
