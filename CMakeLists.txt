@@ -5,10 +5,13 @@ project(MyDesktopVideo LANGUAGES OBJCXX)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0")
 
 # Set the source files
-set(SOURCES main.mm)
+set(SOURCES src/main.mm)
+
+# Set the resources (app icon)
+set(RESOURCES assets/MyDesktopVideo.icns)
 
 # Create the executable bundle
-add_executable(MyDesktopVideo MACOSX_BUNDLE ${SOURCES})
+add_executable(MyDesktopVideo MACOSX_BUNDLE ${SOURCES} ${RESOURCES})
 
 # Configure Automatic Reference Counting (ARC) and Optimization
 target_compile_options(MyDesktopVideo PRIVATE -fobjc-arc -O3)
@@ -33,4 +36,11 @@ target_link_libraries(MyDesktopVideo PRIVATE
 set_target_properties(MyDesktopVideo PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER "com.johndiniz.MyDesktopVideo"
     MACOSX_BUNDLE_BUNDLE_NAME "MyDesktopVideo"
+    MACOSX_BUNDLE_ICON_FILE "MyDesktopVideo.icns"
 )
+
+# Set the resource properties so they are copied into the bundle
+set_source_files_properties(${RESOURCES} PROPERTIES MACOSX_BUNDLE_LOCATION "Resources")
+set_target_properties(MyDesktopVideo PROPERTIES RESOURCE "${RESOURCES}")
+
+

@@ -1,4 +1,3 @@
----
 # Based on LLVM style
 BasedOnStyle: LLVM
 
@@ -23,6 +22,5 @@ ObjCSpaceAfterProperty: true
 ObjCSpaceBeforeProtocolList: true
 
 # Supports Modern C++ and Objective-C
-Language: Cpp
 Standard: Latest
-...
+

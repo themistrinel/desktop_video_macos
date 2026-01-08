@@ -50,7 +50,7 @@ DerivedData/
 # ===============================
 # IDEs / editores
 # ===============================
-.vscode/
+# .vscode/ (Removido para compartilhar configurações de formatação)
 .idea/
 *.iml
 
